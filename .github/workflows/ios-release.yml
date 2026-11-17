@@ -31,8 +31,10 @@ jobs:
       GRADLE_OPTS: -Dfile.encoding=UTF-8
       IOS_CONFIGURATION: ${{ inputs.configuration }}
       KOTLIN_DAEMON_JVMARGS: -Xmx2048M
-      NUVIO_GRADLE_JVMARGS: -Xmx4608M -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=768M
-      NUVIO_KOTLIN_NATIVE_JVMARGS: -Xmx4608M
+      # Runner macos-15 (3 vCPU, 7 GB RAM) tidak sanggup heap 16 GB dari
+      # gradle.properties. Total permintaan dijaga di bawah RAM fisik.
+      NUVIO_GRADLE_JVMARGS: -Xmx3072M -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=768M -Dorg.gradle.configuration-cache=false
+      NUVIO_KOTLIN_NATIVE_JVMARGS: -Xmx3584M
       HOFLIX_LOCAL_PROPERTIES_BASE64: ${{ secrets.HOFLIX_LOCAL_PROPERTIES_BASE64 }}
 
     steps:
