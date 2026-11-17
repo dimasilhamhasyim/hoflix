@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Semua lalu lintas wajib TLS. Bridge, katalog, stream, dan subtitle memakai
+  https; satu-satunya http yang pernah ada adalah tracker P2P, dan fitur itu
+  sudah dimatikan (AppFeaturePolicy.p2pEnabled = false).
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/isrg_root_x1" />
+            <certificates src="@raw/isrg_root_x2" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

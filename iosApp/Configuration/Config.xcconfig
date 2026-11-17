@@ -1,0 +1,6 @@
+#include? "Version.xcconfig"
+
+TEAM_ID=
+
+PRODUCT_NAME=Hoflix
+PRODUCT_BUNDLE_IDENTIFIER=id.hoflix.ios$(TEAM_ID)

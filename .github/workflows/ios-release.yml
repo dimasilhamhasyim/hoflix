@@ -1,0 +1,114 @@
+name: Build iOS IPA
+
+# Build unsigned IPA Hoflix di runner macOS GitHub-hosted.
+# Repo publik => menit macOS gratis. Artifact retention pendek supaya
+# kuota Actions (500 MB) tidak jebol seperti insiden Oktober.
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: Debug (cepat) atau Release (optimized)
+        required: true
+        type: choice
+        options:
+          - Debug
+          - Release
+        default: Release
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-ipa-${{ github.ref }}-${{ inputs.configuration }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Unsigned ${{ inputs.configuration }} IPA
+    runs-on: macos-15
+    timeout-minutes: 120
+    env:
+      GRADLE_OPTS: -Dfile.encoding=UTF-8
+      IOS_CONFIGURATION: ${{ inputs.configuration }}
+      KOTLIN_DAEMON_JVMARGS: -Xmx2048M
+      NUVIO_GRADLE_JVMARGS: -Xmx4608M -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=768M
+      NUVIO_KOTLIN_NATIVE_JVMARGS: -Xmx4608M
+      HOFLIX_LOCAL_PROPERTIES_BASE64: ${{ secrets.HOFLIX_LOCAL_PROPERTIES_BASE64 }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Cache Kotlin/Native
+        uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: |
+            konan-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Verify Apple toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          xcrun --sdk iphoneos --show-sdk-path
+
+      - name: Write runtime properties
+        if: env.HOFLIX_LOCAL_PROPERTIES_BASE64 != ''
+        run: |
+          printf '%s' "${HOFLIX_LOCAL_PROPERTIES_BASE64}" | base64 --decode > local.properties
+          # buang kunci yang hanya relevan untuk Android
+          sed -i '' -E '/^[[:space:]]*(sdk\.dir|NUVIO_RELEASE_STORE_[A-Z]*)[[:space:]]*=/d' local.properties
+          echo "local.properties berisi $(grep -c '=' local.properties) kunci (nilai tidak dicetak)"
+
+      - name: Prepare iOS dependencies
+        run: ./scripts/prepare-ios-dependencies.sh
+
+      - name: Build unsigned ${{ inputs.configuration }} IPA
+        run: |
+          (
+            while sleep 60; do
+              echo "::group::Resource $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+              uptime
+              ps -Ao pid,etime,%cpu,rss,command -r | head -n 8 || true
+              echo "::endgroup::"
+            done
+          ) &
+          monitor_pid=$!
+          trap 'kill "${monitor_pid}" 2>/dev/null || true' EXIT
+          ./scripts/build-ios-ipa.sh
+
+      - name: Summarize IPA
+        run: |
+          slug="$(printf '%s' "${IOS_CONFIGURATION}" | tr '[:upper:]' '[:lower:]')"
+          ipa="$(find build/ios-ipa -maxdepth 1 -type f -name "*-full-${slug}.ipa" -print -quit)"
+          [[ -n "${ipa}" ]] || { echo "IPA tidak terbentuk." >&2; exit 1; }
+          {
+            echo "## Hoflix iOS IPA"
+            echo
+            echo "| Item | Nilai |"
+            echo "|---|---|"
+            echo "| File | \`$(basename "${ipa}")\` |"
+            echo "| Ukuran | $(du -h "${ipa}" | cut -f1) |"
+            echo "| SHA-256 | \`$(shasum -a 256 "${ipa}" | awk '{print $1}')\` |"
+            echo "| Konfigurasi | ${IOS_CONFIGURATION} |"
+            echo "| Signing | unsigned |"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hoflix-ios-${{ inputs.configuration }}-${{ github.sha }}
+          path: build/ios-ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0

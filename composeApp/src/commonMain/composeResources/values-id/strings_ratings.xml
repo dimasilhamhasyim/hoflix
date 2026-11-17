@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rating_rate">Beri rating</string>
+    <string name="rating_your_rating">Ratingmu</string>
+    <string name="rating_rate_episode">Beri rating episode</string>
+    <string name="rating_rated">Diberi %1$s/10</string>
+    <string name="rating_value">%1$s dari 10</string>
+    <string name="rating_saved">Rating tersimpan</string>
+    <string name="rating_removed">Rating dihapus</string>
+</resources>

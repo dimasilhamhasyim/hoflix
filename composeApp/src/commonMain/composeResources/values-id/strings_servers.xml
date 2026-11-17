@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="compose_settings_page_media_servers">Server media</string>
+    <string name="compose_settings_page_media_server">Server</string>
+    <string name="home_empty_no_sources_title">Tidak ada sumber konten</string>
+    <string name="home_empty_no_sources_message">Tambahkan addon atau hubungkan server media untuk melihat katalog di Beranda.</string>
+    <string name="search_empty_no_sources_message">Tambahkan addon atau hubungkan server media untuk mencari.</string>
+</resources>

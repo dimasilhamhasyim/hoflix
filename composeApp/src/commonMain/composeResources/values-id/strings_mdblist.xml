@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_manage_lists">Kelola daftar</string>
+    <string name="library_create_list">Buat daftar</string>
+    <string name="library_edit_list">Ubah daftar</string>
+    <string name="library_create_list_action">Buat</string>
+</resources>

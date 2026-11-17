@@ -1,0 +1,10 @@
+<resources>
+    <string name="device_limit_title">Batas perangkat tercapai</string>
+    <string name="device_limit_body">Akun ini memakai %1$d dari %2$d slot perangkat. Cabut salah satu perangkat di bawah, lalu putar lagi.</string>
+    <string name="device_limit_body_unknown">Batas %1$d perangkat tercapai. Cabut salah satu perangkat di menu Akun, lalu putar lagi.</string>
+    <string name="device_limit_current">Perangkat ini</string>
+    <string name="device_limit_revoke">Cabut</string>
+    <string name="device_limit_close">Tutup</string>
+    <string name="device_limit_revoked">Perangkat dicabut. Coba putar lagi.</string>
+    <string name="device_limit_revoke_failed">Gagal mencabut perangkat. Coba lagi.</string>
+</resources>
