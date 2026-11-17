@@ -26,7 +26,7 @@ jobs:
   build:
     name: Unsigned ${{ inputs.configuration }} IPA
     runs-on: macos-15
-    timeout-minutes: 120
+    timeout-minutes: 240
     env:
       GRADLE_OPTS: -Dfile.encoding=UTF-8
       IOS_CONFIGURATION: ${{ inputs.configuration }}
