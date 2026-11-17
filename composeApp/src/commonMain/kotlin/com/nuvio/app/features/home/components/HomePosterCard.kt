@@ -105,7 +105,8 @@ internal fun MetaPreview.cardEpisodeBadge(): String? {
     val match = Regex("^S(\\d{1,2})\\s*E(\\d{1,4})$").find(text) ?: return null
     val season = match.groupValues[1].toIntOrNull() ?: return null
     val episode = match.groupValues[2].toIntOrNull() ?: return null
-    return "S%02d E%02d".format(season, episode)
+    // `String.format` hanya ada di JVM; padStart aman untuk semua target.
+    return "S${season.toString().padStart(2, '0')} E${episode.toString().padStart(2, '0')}"
 }
 
 /** Badge rating bintang, dipakai kartu episode yang tidak memakai badge tipe. */
